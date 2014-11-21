@@ -35,8 +35,6 @@ class EW_UntranslatedStrings_Block_Adminhtml_Report_Grid extends Mage_Adminhtml_
             'align'     => 'left',
             'width'     => '75px',
             'index'     => 'code',
-            // 'type'      => 'options'
-            // 'options'   => Mage::getModel('modulename/region')->getRegions()
         ));
 
         $this->addColumn('untranslated_string', array(
