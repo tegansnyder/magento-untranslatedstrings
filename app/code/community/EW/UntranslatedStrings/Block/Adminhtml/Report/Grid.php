@@ -11,7 +11,9 @@ class EW_UntranslatedStrings_Block_Adminhtml_Report_Grid extends Mage_Adminhtml_
         /* var $collection EW_UntranslatedStrings_Model_Resource_String_Collection */
         $collection = Mage::getResourceModel('ew_untranslatedstrings/string_collection');
         $collection->joinStoreCode();
-        //$collection->setOrder('encounter_count', Varien_Db_Select::SQL_DESC); //causes problems with grid sorting
+        
+        //@todo: I can't get this to return the correct results in the grid
+        //$collection->groupUntranslatedStrings();
 
         $this->setCollection($collection);
 
@@ -19,6 +21,7 @@ class EW_UntranslatedStrings_Block_Adminhtml_Report_Grid extends Mage_Adminhtml_
     }
 
     protected function _prepareColumns() {
+
         $this->addColumn('id', array(
             'header'    => $this->__('ID'),
             'align'     => 'left',
@@ -32,6 +35,8 @@ class EW_UntranslatedStrings_Block_Adminhtml_Report_Grid extends Mage_Adminhtml_
             'align'     => 'left',
             'width'     => '75px',
             'index'     => 'code',
+            // 'type'      => 'options'
+            // 'options'   => Mage::getModel('modulename/region')->getRegions()
         ));
 
         $this->addColumn('untranslated_string', array(
@@ -52,11 +57,12 @@ class EW_UntranslatedStrings_Block_Adminhtml_Report_Grid extends Mage_Adminhtml_
             'index'     => 'translation_module',
         ));
 
-
         $this->addColumn('locale', array(
             'header'    => $this->__('Locale'),
             'align'     => 'left',
             'index'     => 'locale',
+            'type'      => 'options',
+            'options'   => Mage::helper('ew_untranslatedstrings')->getEnabledStoreLocales()
         ));
 
         $this->addColumn('url_found', array(

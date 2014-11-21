@@ -4,6 +4,7 @@ class EW_UntranslatedStrings_Model_Resource_String_Collection extends Mage_Core_
 {
     private $_joinedStoreCode = false;
     private $_interferWithCountSql = false;
+    private $_groupedUntranslatedStrings = false;
 
     protected function _construct() {
         $this->_init('ew_untranslatedstrings/string');
@@ -24,6 +25,16 @@ class EW_UntranslatedStrings_Model_Resource_String_Collection extends Mage_Core_
     }
 
     /**
+     * @todo: Group untranslated strings together by locale
+     */
+    public function groupUntranslatedStrings() {
+        if(!$this->_groupedUntranslatedStrings) {
+            $this->getSelect()->group(array('locale','untranslated_string'));
+        }
+        $this->_groupedUntranslatedStrings = true;
+    }
+
+    /**
      * Account for group and having clauses, if any
      *
      * @return Varien_Db_Select
@@ -37,6 +48,7 @@ class EW_UntranslatedStrings_Model_Resource_String_Collection extends Mage_Core_
         $this->_renderFilters();
 
         $countSelect = clone $this->getSelect();
+        //$countSelect->reset(Zend_Db_Select::GROUP);
         $countSelect->reset(Zend_Db_Select::ORDER);
         $countSelect->reset(Zend_Db_Select::LIMIT_COUNT);
         $countSelect->reset(Zend_Db_Select::LIMIT_OFFSET);
@@ -85,6 +97,27 @@ class EW_UntranslatedStrings_Model_Resource_String_Collection extends Mage_Core_
         $idsSelect->columns($this->getResource()->getIdFieldName(), 'main_table');
         return $this->getConnection()->fetchCol($idsSelect);
     }
+
+    /**
+     * Retrieves a list of all locales identified
+     * @return array
+     */
+     public function getLocalesIdentified() {
+
+        $select = $this->addFieldToSelect('locale')
+                            ->getSelect()
+                            ->group('locale');
+
+        $locales = array();
+        $results = $select->query()->fetchAll();
+
+        foreach ($results as $data) {
+            $locales[] = $data['locale'];
+        }
+
+        return $locales;
+
+     }
 
     /**
      * Configures collection to be summary of

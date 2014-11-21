@@ -128,4 +128,49 @@ class EW_UntranslatedStrings_Helper_Data extends Mage_Core_Helper_Abstract
         //not enabled, so stick to configured locale
         return array(Mage::app()->getLocale()->getLocaleCode());
     }
+
+    /**
+     * Return array of all store locales and label those not used
+     * @return array
+     */
+    public function getEnabledStoreLocales() {
+
+        $local_options = array();
+        $available_locales = array();
+
+        // loop through the stores and grab the configured locale
+        $stores = Mage::app()->getStores();
+        foreach ($stores as $store) {
+            $store_id = $store->getId();
+            $available_locales[] = Mage::getStoreConfig('general/locale/code', $store_id);
+        }
+
+        // loop through all Magento locales
+        $locales = Mage::app()->getLocale()->getOptionLocales();
+        foreach ($locales as $locale) {
+
+            // does the locale match a configured store locale
+            if (in_array($locale['value'], $available_locales)) {
+
+                $local_options[$locale['value']] = $locale['value'];
+
+            } else {
+
+                // edge case to allow for stray database entries
+                // locales that don't exist in store but did at one time and are in db
+                $db_locales = Mage::getResourceModel('ew_untranslatedstrings/string_collection')->getLocalesIdentified();
+                if (in_array($locale['value'], $db_locales)) {
+                    $local_options[$locale['value']] = $locale['value'];
+                } else {
+                    // uncomment to show unsed locales
+                    //$local_options[$locale['value']] = $this->__('Unused: ') . $locale['value'];
+                }
+
+            }
+        }
+
+        return $local_options;
+
+    }
+
 }
